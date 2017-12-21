@@ -1,10 +1,26 @@
+% Gaussian process classification toy example
+%
+% Re-implementation of the toy example (Section 3.7.2) in Rasmussen and 
+% Williams (2006).
+% 
+% 2017-12-21 -- Roland Hostettler
 
-
-
-
+% Housekeeping
 clear variables;
-addpath ~/Projects/Misc/gpkit
+addpath ../src
 
+%% Model
+% Hyperparameters
+ell = 2.6;
+sigma2 = 7^2;
+
+% Covariance function
+k = @(x1, x2) gpk_se(x1, x2, ell, sigma2);
+
+% Grid for prediction
+xp = -9:0.1:4;
+
+%% Data
 x = [
     -6 + 0.8*randn(20, 1);
      0 + 0.8*randn(30, 1);
@@ -16,21 +32,17 @@ y = [
        ones(10, 1);
 ].';
 
-
-ell = 2.6;
-sigma = 7^2;
-k = @(x1, x2) k_se(x1, x2, ell, sigma);
-
+%% Training
+% Laplace approximation
 f_laplace = gpc_train_laplace(x, y, k);
 [nu_ep, tau_ep, ~, f_ep] = gpc_train_ep(x, y, k);
-
-xp = -9:0.1:4;
-[rhop_ep, fp_ep] = gpc_predict_ep(xp, x, y, k, nu_ep, tau_ep);
-
 fp_laplace = gp_predict(xp, x, f_laplace, 0, [], k);
 rhop_laplace = normcdf(fp_laplace);
 
-%%
+% EP approximation
+[rhop_ep, fp_ep] = gpc_predict_ep(xp, x, y, k, nu_ep, tau_ep);
+
+%% Visualization
 figure(1); clf();
 plot(x, f_laplace, '.'); hold on;
 plot(x, f_ep, '.');

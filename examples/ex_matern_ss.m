@@ -1,31 +1,30 @@
-% GP regression using state-space formulation of Matérn kernel example
+% GP regression using state-space formulation of Matern CF example
 %
 % Implementation of Gaussian Process (GP) regression based on the state-
 % space formulation of spatio-temporal GPs, see [1], [2].
 %
-% [1] J. Hartikainen and S. Särkkä, "Kalman filtering and smoothing 
+% [1] J. Hartikainen and S. Sarkka, "Kalman filtering and smoothing 
 %     solutions to temporal Gaussian process regression models," in IEEE 
 %     International Workshop on Machine Learning for Signal Processing 
-%     (MLSP), pp. 379–384, August 2010.
+%     (MLSP), pp. 379-384, August 2010.
 %
 % [2] A. Carron, M. Todescato, R. Carli, L. Schenato, and G. Pillonetto, 
 %     "Machine learning meets Kalman filtering," in 55th IEEE Conference on
-%     Decision and Control (CDC), pp. 4594–4599, December 2016.
+%     Decision and Control (CDC), pp. 4594-4599, December 2016.
 % 
 % 2017-10-20 -- Roland Hostettler <roland.hostettler@aalto.fi>
 
 % Housekeeping
 clear variables;
-addpath lib;
-rng(23);
+addpath ../src;
 
 %% Parameters
-l_x = 2;            % Spatial length scale
-var_t = 0.5;        % Variance
-l_t = 1;            % Temporal length scale
+ellx = 2;           % Spatial length scale
+sigma2t = 0.5;      % Variance
+ellt = 1;           % Temporal length scale
 R = 0.01;           % Measurement noise variance
 
-T = 100;              % Simulation time
+T = 100;            % Simulation time
 Ts = 0.25;          % Sampling time
 
 NTrain = 4;         % No. of spatial training points
@@ -38,13 +37,13 @@ xp = randn(2, NTest);
 %% Batch model
 % u = [x; t]
 k_f = @(u1, u2) ( ...
-    k_matern(u1(1:2, :), u2(1:2, :), l_x, 1, 2.5) ...
-    .*k_matern(u1(3, :), u2(3, :), l_t, var_t, 2.5) ...
+    gpk_matern(u1(1:2, :), u2(1:2, :), ellx, 1, 2.5) ...
+    .*gpk_matern(u1(3, :), u2(3, :), ellt, sigma2t, 2.5) ...
 );
 
 %% State space model
 % Convert temporal covaraince matrix to state space system
-[A, B, C, Sw, Pinf] = matern2ss(l_t, var_t, 2.5);
+[A, B, C, Sw, Pinf] = gpk_matern_ss(ellt, sigma2t, 2.5);
 [F, Q] = lti_disc(A, B, Sw, Ts);
 Q = (Q+Q')/2;
 N0 = size(F, 1);
@@ -61,7 +60,7 @@ C = [kron(eye(NTrain), C), zeros(NTrain, NTest*N0)];
 % covariance between the inducing points (times the covariance of the 
 % temporal system)
 xx = [xt, xp];
-Kxx = gp_calculate_covariance(xx, @(x1, x2) k_matern(x1, x2, l_x, 1, 2.5));
+Kxx = gp_calculate_covariance(xx, @(x1, x2) gpk_matern(x1, x2, ellx, 1, 2.5));
 Q = kron(Kxx, Q);
     
 % Initial state -- same as for Q
