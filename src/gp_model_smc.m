@@ -1,9 +1,9 @@
-function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
+function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts, m0)
 % State-space Gaussian process model with arbitrary likelihood
 % 
 % USAGE
 %   model = GP_MODEL_SMC()
-%   model = GP_MODEL_SMC(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
+%   model = GP_MODEL_SMC(gpk_t, gpk_u, ut, up, py, ptheta, Ts, m0)
 %
 % DESCRIPTION
 %   Implements a generic state-space representation for latent Gaussian
@@ -27,9 +27,12 @@ function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
 %           format (default: linear, Gaussian likelihood with unit 
 %           variance).
 %   ptheta  (Hyper)parameter prior, cell array with one prior for each
-%           parameter in the order of the parameter vector (defualt: {}).
+%           parameter in the order of the parameter vector (default: {}).
 %           The pdf descriptions must follow the common pdf format.
+%           Additionally, a field 'parameters' may be included that
+%           includes the prior's parameters.
 %   Ts      Sampling time (default: 1).
+%   m0      Initial mean (default: zeros(Nx, 1)).
 %
 % RETURNS
 %   model   The model structure suitable for use together with libsmc.
@@ -67,7 +70,7 @@ function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
 %   * Use a struct-generating function for normal pdfs
 
     %% Defaults
-    narginchk(0, 7)
+    narginchk(0, 8)
     if nargin < 1 || isempty(gpk_t)
         gpk_t = @gpk_matern_ss;
     end
@@ -89,6 +92,9 @@ function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
     if nargin < 7 || isempty(Ts)
         Ts = 1;
     end
+    if nargin < 8
+        m0 = [];
+    end
     
     if isempty(ut)
         Jt = 1;
@@ -103,7 +109,7 @@ function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
     
     %% Create model structure
     % Get state-space representation
-    [F, Q, C, m0, P0, N0] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts);
+    [F, Q, C, P0, N0] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts);
     
     % Calculate the indices to the nonlinear and linear state components.
     % Only the training (ut) points are nonlinear (these are the states
@@ -114,6 +120,13 @@ function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
     a = ones(N0-1, 1)*(0:N0:(Jt-1)*N0);
     il = a(:) + il(:);
     il = [il; (Jt*N0+1:Nx).'];
+    
+    % Default initial state
+    if isempty(m0)
+        m0 = zeros(Nx, 1);
+    elseif size(m0, 1) ~= Nx
+        error('Size of initial state does not match state dimension.');
+    end
     
     % Default likelihood N(f, 1)
     if isempty(py)
@@ -131,7 +144,7 @@ function model = gp_model_smc(gpk_t, gpk_u, ut, up, py, ptheta, Ts)
     LP0 = chol(P0).';
     model.px0 = struct();
     model.px0.fast = true;
-    model.px0.rand = @(M) m0*ones(1, M) + LP0*randn(N0, M);
+    model.px0.rand = @(M) m0*ones(1, M) + LP0*randn(Nx, M);
     model.px0.logpdf = @(x) logmvnpdf(x.', (m0*ones(1, size(x, 2))).', P0).';
     model.m0 = m0;
     model.P0 = P0;

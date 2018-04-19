@@ -1,9 +1,9 @@
-function [F, Q, C, m0, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
+function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
 % Discrete-time state-space model for separable spatio-temporal GPs
 % 
 % USAGE
-%   [F, Q, C, m0, P0] = GP_MODEL_SS()
-%   [F, Q, C, m0, P0, Nx] = GP_MODEL_SS(gpk_t, gpk_u, ut, up, Ts)
+%   [F, Q, C, P0] = GP_MODEL_SS()
+%   [F, Q, C, P0, Nx] = GP_MODEL_SS(gpk_t, gpk_u, ut, up, Ts)
 %
 % DESCRIPTION
 %   Generic discrete-time state-space representation for temporal and
@@ -30,7 +30,7 @@ function [F, Q, C, m0, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
 %   Ts      Sampling time (default: 1).
 %
 % RETURNS
-%   F, Q, C, m0, P0
+%   F, Q, C, P0
 %           Discrete-time linear state-space model parameters.
 %   Nx      For temporal models, this is the state dimension and for
 %           spatio-temporal models, this is the dimension of the state for
@@ -61,9 +61,6 @@ function [F, Q, C, m0, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
 % 
 % You should have received a copy of the GNU General Public License along 
 % with libgp. If not, see <http://www.gnu.org/licenses/>.
-
-% TODO:
-%   * Allow for non-zero initial states
 
     %% Defaults
     narginchk(0, 5)
@@ -116,7 +113,4 @@ function [F, Q, C, m0, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
         Q = kron(Kuu, Q);
         P0 = kron(Kuu, P0);
     end
-    
-    % Initial state
-    m0 = zeros(size(F, 1), 1);
 end
