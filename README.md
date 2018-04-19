@@ -33,7 +33,8 @@ State-Space Representations
 ---------------------------
 One of the main purposes of the library is to provide tools for state-space representations of temporal GPs. Hence, there are a couple of functions that help to build this kind of models:
 
-* `gp_model_ss()`: A constructor for discrete-time state-space representations of GPs with separable covariance functions.
+* `gp_model_ss()`: A constructor for discrete-time state-space representations of GPs with separable covariance functions,
+* `gp_model_smc()`: A constructor for discrete-time state-space representations with arbitrary likelihoods that returns a model `struct` suitable for the inference methods in [libsmc](https://github.com/rhostettler/libsmc).
 
 
 Examples
@@ -83,7 +84,7 @@ Here's an overview of the status of the different files:
 * `gpk_matern.m`
 * `gp_k_quasiperiodic_ss.m`
 * `gpk_se_psd.m`
-* `gp_model_smc.m`
+* *OK* `gp_model_smc.m`
 * `gp_predict.m`
 * `k_bessel.m`
 * `k_periodic.m`

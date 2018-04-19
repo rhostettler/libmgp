@@ -58,7 +58,7 @@ k_f = @(u1, u2) ( ...
 
 %% State space model
 % Convert temporal covaraince matrix to state space system
-gpk_t = @(t) gpk_matern_ss(ellt, sigma2t, 2.5);
+gpk_t = @() gpk_matern_ss(ellt, sigma2t, 2.5);
 gpk_u = @(x1, x2) gpk_matern(x1, x2, ellx, 1, 2.5);
 [F, Q, C, m0, P0, N0] = gp_model_ss(gpk_t, gpk_u, xt, xp, Ts);
 
