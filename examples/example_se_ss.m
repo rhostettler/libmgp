@@ -12,8 +12,22 @@
 %     "Machine learning meets Kalman filtering," in 55th IEEE Conference on
 %     Decision and Control (CDC), pp. 4594? 4599, December 2016.
 % 
-% example_se_ss.m -- 2018-03-22
-% Roland Hostettler <roland.hostettler@aalto.fi>
+% Copyright (C) 2018 Roland Hostettler <roland.hostettler@aalto.fi>
+% 
+% This file is part of the libgp Matlab toolbox.
+%
+% libgp is free software: you can redistribute it and/or modify it under 
+% the terms of the GNU General Public License as published by the Free 
+% Software Foundation, either version 3 of the License, or (at your option)
+% any later version.
+% 
+% libgp is distributed in the hope that it will be useful, but WITHOUT ANY
+% WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+% details.
+% 
+% You should have received a copy of the GNU General Public License along 
+% with libgp. If not, see <http://www.gnu.org/licenses/>.
 
 % Housekeeping
 clear variables;
@@ -23,7 +37,7 @@ addpath ../src;
 sigma2 = 0.5;   % Variance
 ell = 1;        % Length scale
 J = 6;          % State-space approximation order 
-T = 5;          % Simulation time
+T = 1000;       % Simulation time
 Ts = 0.5;       % Sampling time
 R = 0.01;       % Measurement noise
 
@@ -45,7 +59,7 @@ title('Comparison of the Spectral Densities');
 xlabel('\omega / s^{-1}'); ylabel('S_{ww}(\omega)');
 
 %% Data Generation
-k = @(t1, t2) gpk_se(t1, t2, ell, sigma2); %sigma2*exp(-(t2-t1).^2/(2*ell^2));
+k = @(t1, t2) gpk_se(t1, t2, ell, sigma2);
 t = (Ts:Ts:T);
 Ktt = gp_calculate_covariance(t, k);
 N = length(t);

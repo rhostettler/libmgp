@@ -12,7 +12,22 @@
 %     "Machine learning meets Kalman filtering," in 55th IEEE Conference on
 %     Decision and Control (CDC), pp. 4594-4599, December 2016.
 % 
-% 2017-10-20 -- Roland Hostettler <roland.hostettler@aalto.fi>
+% Copyright (C) 2018 Roland Hostettler <roland.hostettler@aalto.fi>
+% 
+% This file is part of the libgp Matlab toolbox.
+%
+% libgp is free software: you can redistribute it and/or modify it under 
+% the terms of the GNU General Public License as published by the Free 
+% Software Foundation, either version 3 of the License, or (at your option)
+% any later version.
+% 
+% libgp is distributed in the hope that it will be useful, but WITHOUT ANY
+% WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+% details.
+% 
+% You should have received a copy of the GNU General Public License along 
+% with libgp. If not, see <http://www.gnu.org/licenses/>.
 
 % Housekeeping
 clear variables;
@@ -43,28 +58,9 @@ k_f = @(u1, u2) ( ...
 
 %% State space model
 % Convert temporal covaraince matrix to state space system
-[A, B, C, Sw, Pinf] = gpk_matern_ss(ellt, sigma2t, 2.5);
-[F, Q] = lti_disc(A, B, Sw, Ts);
-Q = (Q+Q')/2;
-N0 = size(F, 1);
-
-% State transition matrix: Simply a block-diagonal matrix with the
-% matrix F on each block (for each xi / xp)
-F = kron(eye(NTrain+NTest), F);
-    
-% Measurement vector: "Block vector" similar to the above with no
-% measurements for the prediction points.
-C = [kron(eye(NTrain), C), zeros(NTrain, NTest*N0)];
-
-% The covariance between the 'different' systems is given through the 
-% covariance between the inducing points (times the covariance of the 
-% temporal system)
-xx = [xt, xp];
-Kxx = gp_calculate_covariance(xx, @(x1, x2) gpk_matern(x1, x2, ellx, 1, 2.5));
-Q = kron(Kxx, Q);
-    
-% Initial state -- same as for Q
-P0 = kron(Kxx, Pinf);
+gpk_t = @(t) gpk_matern_ss(ellt, sigma2t, 2.5);
+gpk_u = @(x1, x2) gpk_matern(x1, x2, ellx, 1, 2.5);
+[F, Q, C, m0, P0, N0] = gp_model_ss(gpk_t, gpk_u, xt, xp, Ts);
 
 %% Generate data
 t = 0:Ts:T;
@@ -109,7 +105,7 @@ P_s = zeros(Nx, Nx, N);
 
 % Filtering
 tic;
-m = zeros(Nx, 1);
+m = m0;
 P = P0;
 for n = 1:N
     % Prediction

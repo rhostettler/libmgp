@@ -5,7 +5,7 @@ This is a simple Gaussian process (GP) library for Matlab. It provides a bunch o
 
 Naming Conventions
 ------------------
-This library follows a couple of naming conventions. These are:
+This library follows a couple of naming conventions:
 
 * `gp_XXX`: Generic function (e.g. `gp_calculate_covariance()` or `gp_predict()`),
 * `gpk_XXX`: Covariance functions (e.g. `gpk_se()` or `gpk_matern()`),
@@ -31,7 +31,7 @@ The following covariance functions are implemented:
 
 State-Space Representations
 ---------------------------
-One of the main purposes of the library is to provide tools for state-space representations of temporal GPs. Hence, there are a couple of functions that help to build this kind of models. These are:
+One of the main purposes of the library is to provide tools for state-space representations of temporal GPs. Hence, there are a couple of functions that help to build this kind of models:
 
 * `gp_model_ss()`: A constructor for discrete-time state-space representations of GPs with separable covariance functions.
 
@@ -40,8 +40,9 @@ Examples
 --------
 There are a bunch of examples implemented (see the folder `examples`). These are:
 
-* `example_gpc_toy.m`: Gaussian process classification example using the Laplace and Expectation Propagation approximations (re-implementation of the example in Section 3.7.2 of Rasmussen and Williams (2006)).
-* `example_matern_ss.m`: Example of using the Matern state space formulation for a spatio-temporal GP regression problem.
+* `example_gpc_toy.m`: Gaussian process classification example using the Laplace and Expectation Propagation approximations (re-implementation of the example in Section 3.7.2 of Rasmussen and Williams (2006)),
+* `example_se_ss.m`: Example of using Taylor series approximation-based state-space formulation for a squared exponential covariance function in a timeseries example,
+* `example_matern_ss.m`: Example of using the Matern state-space formulation for a spatio-temporal GP regression problem.
 
 
 TODO
@@ -59,9 +60,8 @@ Here's an overview of the status of the different files:
 
 *examples:*
 * `example_gpc_toy.m`
-* `example_matern_ss.m`
-* `example_model_ss.m`
-* `example_se_ss.m`
+* *OK* `example_matern_ss.m`
+* *OK* `example_se_ss.m`
 
 *src:*
 * `dk_periodic.m`
