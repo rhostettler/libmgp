@@ -1,8 +1,8 @@
 function K = gp_calculate_covariance(x, k)
-% Calculates the covariance kernel matrix
+% Calculates the GP covariance matrix
 %
-% SYNOPSIS
-%   K = gp_calculate_covariance(x, k)
+% USAGE
+%   K = GP_CALCULATE_COVARIANCE(x, k)
 %
 % DESCRIPTION
 %   Calculates the covariance matrix for all columns in the input variable
@@ -10,18 +10,14 @@ function K = gp_calculate_covariance(x, k)
 %
 % PARAMETERS
 %   x   The Nx*N input vector
-%
 %   k   Function handle to the covariance function of the form k(x1, x2)
 %       where x1 and x2 are Nx*1 vectors.
 %
 % RETURNS
 %   K   The N*N covariance matrix
 %
-% VERSION
-%   2017-05-24
-%
-% AUTHOR
-%   Roland Hostettler <roland.hostettler@aalto.fi>
+% AUTHORS
+%   2017-05-24 -- Roland Hostettler <roland.hostettler@aalto.fi>
 
     narginchk(2, 2);
     N = size(x, 2);

@@ -2,8 +2,8 @@ function Kxx = gpk_matern(x1, x2, ell, sigma2, nu)
 % Matern covariance function
 % 
 % USAGE
-%   k = gpk_matern(x1, x2)
-%   k = gpk_matern(x1, x2, ell, sigma2, nu)
+%   k = GPK_MATERN(x1, x2)
+%   k = GPK_MATERN(x1, x2, ell, sigma2, nu)
 %
 % DESCRIPTION
 %   Matern covariance function defined as
@@ -49,7 +49,6 @@ function Kxx = gpk_matern(x1, x2, ell, sigma2, nu)
 
 % TODO:
 %   * Fix bug for nu > 5/2
-%   * Implement nu = 1/2 (Ornstein-Uhlenbeck case)
 %   * Allow for diagonal ell matrices
 
     %% Defaults
@@ -68,16 +67,25 @@ if 0
 end
     
     %% Calculate Covariance
-    r = sqrt(sum((x1-x2).^2, 1));
+    % If x2 is empty, we assume that x1 is a matrix of euclidean distrances
+    % (used for fast computations)
+    if ~isempty(x2)
+        r = sqrt(sum((x1-x2).^2, 1));
+    else
+        r = x1;
+    end
     switch nu
+        case 0.5
+            Kxx = sigma2*exp(-r/ell);
+        
         case 1.5
-            Kxx = sigma2*(1 + sqrt(3)*r/ell)*exp(-sqrt(3)*r/ell);
+            Kxx = sigma2*(1 + sqrt(3)*r/ell).*exp(-sqrt(3)*r/ell);
             
         case 2.5
-            Kxx = sigma2*(1 + sqrt(5)*r/ell + 5*r.^2/(3*ell^2))*exp(-sqrt(5)*r/ell);
+            Kxx = sigma2*(1 + sqrt(5)*r/ell + 5*r.^2/(3*ell^2)).*exp(-sqrt(5)*r/ell);
             
         otherwise
-            Kxx = sigma2*2^(1-nu)/gamma(nu)*(sqrt(2*nu)/ell*r)^nu*besselk(nu, sqrt(2*nu)/ell*r);
+            Kxx = sigma2*2^(1-nu)/gamma(nu)*(sqrt(2*nu)/ell*r)^nu.*besselk(nu, sqrt(2*nu)/ell*r);
             % TODO: This is not quite true.
             Kxx(r == 0) = sigma2;
     end
