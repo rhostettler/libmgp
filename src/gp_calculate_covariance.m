@@ -19,6 +19,21 @@ function K = gp_calculate_covariance(x, k)
 % AUTHORS
 %   2017-05-24 -- Roland Hostettler <roland.hostettler@aalto.fi>
 
+% This file is part of the libgp Matlab toolbox.
+%
+% libgp is free software: you can redistribute it and/or modify it under 
+% the terms of the GNU General Public License as published by the Free 
+% Software Foundation, either version 3 of the License, or (at your option)
+% any later version.
+% 
+% libgp is distributed in the hope that it will be useful, but WITHOUT ANY
+% WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+% details.
+% 
+% You should have received a copy of the GNU General Public License along 
+% with libgp. If not, see <http://www.gnu.org/licenses/>.
+
     narginchk(2, 2);
     N = size(x, 2);
     K = zeros(N, N);
