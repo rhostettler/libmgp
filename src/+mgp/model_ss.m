@@ -1,9 +1,9 @@
-function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
+function [F, Q, C, P0, Nx, m0] = model_ss(gpk_t, gpk_u, ut, up, Ts, f0)
 % Discrete-time state-space model for separable spatio-temporal GPs
 % 
 % USAGE
 %   [F, Q, C, P0] = GP_MODEL_SS()
-%   [F, Q, C, P0, Nx] = GP_MODEL_SS(gpk_t, gpk_u, ut, up, Ts)
+%   [F, Q, C, P0, Nx] = GP_MODEL_SS(gpk_t, gpk_u, ut, up, Ts, f0)
 %
 % DESCRIPTION
 %   Generic discrete-time state-space representation for temporal and
@@ -28,13 +28,14 @@ function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
 %           required if gpk_u is not empty.
 %   up      Prediction points for the spatial variable (default: []).
 %   Ts      Sampling time (default: 1).
+%   f0      Initial mean of the GP, i.e. f(u, 0).
 %
 % RETURNS
 %   F, Q, C, P0
 %           Discrete-time linear state-space model parameters.
 %   Nx      For temporal models, this is the state dimension and for
 %           spatio-temporal models, this is the dimension of the state for
-%           one spatial inducing point.
+%           one spatial inducing points.
 %
 % REFERENCES
 %   [1] R. Hostettler, S. Sarkka, S. J. Godsill, "Rao-Blackwellized
@@ -63,7 +64,7 @@ function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
 % with libgp. If not, see <http://www.gnu.org/licenses/>.
 
     %% Defaults
-    narginchk(0, 5)
+    narginchk(0, 6)
     if nargin < 1 || isempty(gpk_t)
         gpk_t = @gpk_matern_ss;
     end
@@ -81,6 +82,9 @@ function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
     if nargin < 5 || isempty(Ts)
         Ts = 1;
     end
+    if nargin < 6
+        f0 = [];
+    end
         
     %% Convert System
     % Get state-space representation of the temporal covariance function
@@ -88,6 +92,7 @@ function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
     [F, Q] = lti_disc(A, B, Sw, Ts);
     Q = (Q+Q')/2;
     Nx = size(F, 1);
+    J = 1;
         
     % Add spatial part, if applicable
     if ~temporal
@@ -96,7 +101,7 @@ function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
         Np = size(up, 2);
         J =  Nt + Np;
         u = [ut, up];
-    
+            
         % State transition matrix: A block-diagonal matrix with the matrix
         % F on the diagonal
         F = kron(eye(J), F);
@@ -113,4 +118,11 @@ function [F, Q, C, P0, Nx] = gp_model_ss(gpk_t, gpk_u, ut, up, Ts)
         Q = kron(Kuu, Q);
         P0 = kron(Kuu, P0);
     end
+    
+    % Add m0
+    m0 = zeros(J*Nx, 1);
+    if isempty(f0)
+        f0 = zeros(J, 1);
+    end
+    m0(1:Nx:J*Nx) = f0;
 end

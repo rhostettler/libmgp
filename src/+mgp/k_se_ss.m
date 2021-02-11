@@ -1,4 +1,4 @@
-function [A, B, C, Sw, Pinf] = gpk_se_ss(ell, sigma2, J)
+function [A, B, C, Sw, Pinf] = k_se_ss(ell, sigma2, J)
 % State space representation of the SE covariance function (Taylor approx.)
 %
 % USAGE

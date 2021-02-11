@@ -1,4 +1,4 @@
-function Kxx = gpk_matern(x1, x2, ell, sigma2, nu)
+function Kxx = k_matern(x1, x2, ell, sigma2, nu)
 % Matern covariance function
 % 
 % USAGE
@@ -85,7 +85,7 @@ end
             Kxx = sigma2*(1 + sqrt(5)*r/ell + 5*r.^2/(3*ell^2)).*exp(-sqrt(5)*r/ell);
             
         otherwise
-            Kxx = sigma2*2^(1-nu)/gamma(nu)*(sqrt(2*nu)/ell*r)^nu.*besselk(nu, sqrt(2*nu)/ell*r);
+            Kxx = sigma2*2^(1-nu)/gamma(nu)*(sqrt(2*nu)/ell*r).^nu.*besselk(nu, sqrt(2*nu)/ell*r);
             % TODO: This is not quite true.
             Kxx(r == 0) = sigma2;
     end

@@ -1,4 +1,4 @@
-function [lpy, f, C] = gp_train_laplace(x, y, k, py, par)
+function [lpy, f, C] = train_laplace(x, y, k, py, par)
 % Laplace GP posterior approximation for nonlinear/non-Gaussian likelihoods
 %
 % USAGE
@@ -72,7 +72,7 @@ function [lpy, f, C] = gp_train_laplace(x, y, k, py, par)
     %% Defaults
     narginchk(4, 5);
     if nargin < 5
-        par = [];
+        par = struct();
     end
     def = struct(...
         'J', 10, ...        % Maximum no. of iterations

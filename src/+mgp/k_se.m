@@ -1,4 +1,4 @@
-function Kxx = gpk_se(x1, x2, ell, sigma2)
+function Kxx = k_se(x1, x2, ell, sigma2)
 % Squared exponential covariance kernel
 %
 % USAGE
@@ -44,5 +44,5 @@ end
     
     %% Calculate Covariance
     r = sqrt(sum((x1-x2).^2, 1));
-    Kxx = sigma2*exp(-1/2*(r/ell)^2);
+    Kxx = sigma2*exp(-1/2*(r/ell).^2);
 end

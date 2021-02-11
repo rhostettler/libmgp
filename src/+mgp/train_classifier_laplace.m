@@ -1,4 +1,4 @@
-function [f, Sigma, lpy] = gpc_train_laplace(x, y, k, par)
+function [f, Sigma, lpy] = train_classifier_laplace(x, y, k, par)
 % Binary Gaussian process classifier training using Laplace approximation
 
 

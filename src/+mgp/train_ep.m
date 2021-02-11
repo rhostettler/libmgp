@@ -1,4 +1,4 @@
-function [lpy, mu, Sigma, nu_tilde, tau_tilde] = gp_train_ep(x, y, k, py, par)
+function [lpy, mu, Sigma, nu_tilde, tau_tilde] = train_ep(x, y, k, py, par)
 % Expectation propagation GP posterior approximation
 %
 % USAGE
@@ -62,7 +62,7 @@ function [lpy, mu, Sigma, nu_tilde, tau_tilde] = gp_train_ep(x, y, k, py, par)
     %% Defaults
     narginchk(4, 5);
     if nargin < 5
-        par = [];
+        par = struct();
     end
     def = struct(...
         'J', 10, ...        % Maximum no. of iterations
@@ -160,4 +160,7 @@ function [lpy, mu, Sigma, nu_tilde, tau_tilde] = gp_train_ep(x, y, k, py, par)
             || abs(lpy-lpy_old)/abs(lpy_old) <= par.epsilon ...
         );
     end
+    
+    %
+    mu = mu.';
 end

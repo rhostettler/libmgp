@@ -1,5 +1,5 @@
-function [A, B, C, Sw, Pinf] = gpk_matern_ss(ell, sigma2, nu)
-% State space representation of the Matern covariance function
+function [A, B, C, Sw, Pinf] = k_matern_ss(ell, sigma2, nu)
+% State-space representation of the Matern covariance function
 %
 % SYNOPSIS
 %   [A, B, C, Sw, Pinf] = gpk_matern_ss(l, sigma2, nu)

@@ -1,4 +1,4 @@
-function [rho, fp, Cp] = gpc_predict_ep(xp, xt, yt, k, nu, tau)
+function [rho, fp, Cp] = predict_class_ep(xp, xt, yt, k, nu, tau)
 % Binary Gaussian process class predictor using Expectation Propagation
 
 

@@ -1,4 +1,4 @@
-function [nu_tilde, tau_tilde, lpy, mu, Sigma] = gpc_train_ep(x, y, k, par)
+function [nu_tilde, tau_tilde, lpy, mu, Sigma] = train_classifier_ep(x, y, k, par)
 % Binary Gaussian process classifier training using Expectation Propagation
 %
 % SYNOPSIS
@@ -35,7 +35,7 @@ function [nu_tilde, tau_tilde, lpy, mu, Sigma] = gpc_train_ep(x, y, k, par)
 % VERSION
 %   2017-10-05
 % 
-% AUTHOR
+% AUTHORS
 %   Roland Hostettler <roland.hostettler@aalto.fi>
 
 % TODO:

@@ -1,4 +1,4 @@
-function K12 = gp_calculate_cross_covariance(x1, x2, k)
+function K12 = calculate_cross_covariance(x1, x2, k)
 % Calculates the cross-covariance between two inputs
 %
 % SYNOPSIS

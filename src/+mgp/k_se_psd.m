@@ -1,4 +1,4 @@
-function [S, dS] = gpk_se_psd(w, ell, sigma2)
+function [S, dS] = k_se_psd(w, ell, sigma2)
 % Power Spectral Density of (1D) Squared Exponential Covariance Function
 %
 % USAGE

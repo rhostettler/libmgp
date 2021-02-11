@@ -1,4 +1,4 @@
-function [mp, Cp] = gp_predict(xp, xt, yt, R, m, k)
+function [mp, Cp] = predict(xp, xt, yt, R, m, k)
 % Gaussian process prediction
 %
 % SYNOPSIS

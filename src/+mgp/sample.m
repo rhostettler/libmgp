@@ -1,4 +1,4 @@
-function f = gp_sample(x, k)
+function f = sample(x, k)
 % Sample from a Gaussian Process
 % ==============================
 % Synopsis
