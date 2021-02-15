@@ -12,22 +12,24 @@
 %     "Machine learning meets Kalman filtering," in 55th IEEE Conference on
 %     Decision and Control (CDC), pp. 4594? 4599, December 2016.
 % 
-% Copyright (C) 2018 Roland Hostettler <roland.hostettler@aalto.fi>
-% 
-% This file is part of the libgp Matlab toolbox.
+% 2018-present -- Roland Hostettler
+
+%{
+% This file is part of the libmgp toolbox.
 %
-% libgp is free software: you can redistribute it and/or modify it under 
+% libmgp is free software: you can redistribute it and/or modify it under 
 % the terms of the GNU General Public License as published by the Free 
 % Software Foundation, either version 3 of the License, or (at your option)
 % any later version.
 % 
-% libgp is distributed in the hope that it will be useful, but WITHOUT ANY
+% libmgp is distributed in the hope that it will be useful, but WITHOUT ANY
 % WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 % FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 % details.
 % 
 % You should have received a copy of the GNU General Public License along 
-% with libgp. If not, see <http://www.gnu.org/licenses/>.
+% with libmgp. If not, see <http://www.gnu.org/licenses/>.
+%}
 
 % Housekeeping
 clear variables;
@@ -42,11 +44,15 @@ Ts = 0.5;       % Sampling time
 R = 0.01;       % Measurement noise
 
 %% Covariance Approximation
-[A, B, C, Sw, Pinf] = gpk_se_ss(ell, sigma2, J);
+% State-space model and discretization thereof
+[A, B, C, Sw, Pinf] = mgp.k_se_ss(ell, sigma2, J);
+[F, Q] = lti_disc(A, B, Sw, Ts);
+Q = (Q+Q')/2;
+Lq = chol(Q).';
 
 % Visualize the true spectral density and its approximation
 w = (0:0.1:5);
-Sww = sigma2*sqrt(2*pi*ell^2)*exp(-w.^2*ell^2/2);
+Sww = mgp.k_se_psd(w, ell, sigma2);
 s = tf('s');
 G = C*(s*eye(size(A))-A)^(-1)*B;
 [Sww_hat, ~] = bode((G*G')*Sw, w);
@@ -59,28 +65,23 @@ title('Comparison of the Spectral Densities');
 xlabel('\omega / s^{-1}'); ylabel('S_{ww}(\omega)');
 
 %% Data Generation
-k = @(t1, t2) gpk_se(t1, t2, ell, sigma2);
+k = @(t1, t2) mgp.k_se(t1, t2, ell, sigma2);
 t = (Ts:Ts:T);
-Ktt = gp_calculate_covariance(t, k);
+fr = mgp.sample(t, k);
 N = length(t);
-fr = chol(Ktt).'*randn(N, 1);
-yr = fr + sqrt(R)*randn(N, 1);
+yr = fr + sqrt(R)*randn(1, N);
 
 %% Batch Regression
 tic;
+Ktt = mgp.calculate_covariance(t, k);
 S = Ktt + R*eye(N);
-fhat_batch = Ktt/S*yr;
+fhat_batch = (Ktt/S*yr.').';
 toc;
 
 %% KF Regression
-% Discretization
-[F, Q] = lti_disc(A, B, Sw, Ts); 
-Q = (Q+Q')/2;
-Lq = chol(Q).';
-
 % Filtering
 tic;
-fhat_f = zeros(N, 1);
+fhat_f = zeros(1, N);
 m = zeros(J, 1);
 mf = zeros(J, N);
 P = Pinf;
@@ -104,14 +105,26 @@ for n = 1:N
 end
 
 % Smoothing
-[ms, Ps] = rts_smooth(mf, Pf, F, Q);
-fhat_s = C*ms;
+fhat_s = zeros(1, N);
+ms = zeros(J, N);
+Ps = zeros(J, J, N);
+ms(:, N) = mf(:, N);
+Ps(:, :, N) = Ps(:, :, N);
+fhat_s(:, N) = fhat_f(:, N);
+for n = N-1:-1:1
+    Pp = F*Pf(:, :, n)*F' + Q;
+    L = Pf(:, :, n)*F'/ Pp;
+    ms(:, n)   = mf(:, n) + L*(ms(:, n+1) - F*mf(:, n));
+    Ps(:, :, n) = Pf(:, :, n) + L*(Ps(:, :, n+1) - Pp)*L';
+    
+    fhat_s(:, n) = C*ms(:, n);
+end
 toc;
 
 %% Results
 fprintf('Batch RMSE: %.3f\n', rms(fr-fhat_batch));
 fprintf('KF RMSE: %.3f\n', rms(fr-fhat_f));
-fprintf('RTS RMSE: %.3f\n', rms(fr-fhat_s.'));
+fprintf('RTS RMSE: %.3f\n', rms(fr-fhat_s));
 
 figure(2); clf();
 plot(t, fr); hold on;
