@@ -1,7 +1,7 @@
 function [F, Q, C, m0, P0, dx] = separable_model_ss(k_t, k_u, ut, up, Ts, f0)
 % # Discrete-time state-space model for separable spatio-temporal GPs
 % ## Usage
-% * `[F, Q, C, P0] = separable_model_ss()`
+% * `[F, Q, C, m0, P0] = separable_model_ss()`
 % * `[F, Q, C, m0, P0, dx] = separable_model_ss(k_t, k_u, ut, up, Ts, f0)`
 %
 % ## Description

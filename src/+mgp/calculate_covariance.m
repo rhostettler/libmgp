@@ -45,22 +45,26 @@ function K = calculate_covariance(x, varargin)
     %% Defaults
     narginchk(1, 3);
     x1 = x;
-    if nargin < 2
-        x2 = x;
-        k = @k_se;
-    end
-    if nargin < 3
-        if isa(varargin{1}, 'function_handle')
-            x2 = x;
-            k = varargin{1};
-        else
+    switch nargin
+        case 1
+	        x2 = x;
+            k = @mgp.k_se;
+            
+        case 2
+            if isa(varargin{1}, 'function_handle')
+                x2 = x;
+                k = varargin{1};
+            else
+                x2 = varargin{1};
+                k = @mgp.k_se;
+            end
+            
+        case 3
             x2 = varargin{1};
-            k = @gpk_se;
-        end
-    end
-    if nargin == 3
-        x2 = varargin{1};
-        k = varargin{2};
+            k = varargin{2};
+            
+        otherwise
+            error("Wrong number of arguments.");
     end
     
     %% Calculate covaraince matrix
@@ -68,14 +72,22 @@ function K = calculate_covariance(x, varargin)
     N2 = size(x2, 2);
     K = zeros(N1, N2);
     for i = 1:N1
-        for j = i:N2
-            K(i, j) = k(x1(:, i), x2(:, j));
+        if N1 == N2
+            for j = i:N2
+                K(i, j) = k(x1(:, i), x2(:, j));
+            end
+        else
+            for j = 1:N2
+                K(i, j) = k(x1(:, i), x2(:, j));
+            end
         end
     end
     
     % TODO: We should do this for the N1 != N2 case
-    if N1 == N2
-        K = K + K' - diag(diag(K));
-        K = (K+K')/2;
+    if N1 == N2 % && all(isreal(K))
+        K = K + K.' - diag(diag(K));
+        if all(isreal(K))
+            K = (K+K')/2;
+        end
     end
 end

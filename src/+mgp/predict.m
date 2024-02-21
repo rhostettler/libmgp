@@ -56,16 +56,21 @@ function [mp, Cp] = predict(xp, xt, yt, R, m, k)
         R = 1;
     end
     if nargin < 5 || isempty(m)
-        m = @(x) zeros(1, size(x, 2));
+        m = 0;
     end
     if nargin < 6 || isempty(k)
         k = @mgp.k_se;
     end
-    
+        
     %% Prediction
     % Mean
-    mxp = m(xp);
-    mxt = m(xt);
+    if isa(m, 'function_handle')
+        mxp = m(xp);
+        mxt = m(xt);
+    else
+        mxp = m*ones(1, Np);
+        mxt = m*ones(1, Nt);
+    end
 
     % Covariance
     K = mgp.calculate_covariance([xp, xt], k);

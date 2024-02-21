@@ -4,6 +4,7 @@ function f = sample(x, varargin)
 % * `f = sample(x)`
 % * `f = sample(x, k)`
 % * `f = sample(x, m, k)`
+% * `f = sample(x, m, k, M)`
 %
 % ## Description
 % Samples a set of function values `f` from a Gaussian process with mean
@@ -13,6 +14,7 @@ function f = sample(x, varargin)
 % * `x`: dx*N matrix of N input values.
 % * `m(x)`: Mean function (default: zero).
 % * `k(x1, x2)`: Covariance function.
+% * `
 %
 % ## Output
 % * `f`: The sampled function values.
@@ -38,25 +40,41 @@ function f = sample(x, varargin)
 %}
 
     %% Defaults
-    narginchk(1, 3);
+    narginchk(1, 4);
     N = size(x, 2);
     switch nargin
         case 1
             m = zeros(1, N);
             k = @mgp.k_se;
+            M = 1;
         case 2
             m = zeros(1, N);
             k = varargin{1};
+            M = 1;
         case 3
+            if isa(varargin{2}, 'function_handle')
+                m = varargin{1};
+                k = varargin{2};
+                M = 1;
+            else
+                m = zeros(1, N);
+                k = varargin{1};
+                M = varargin{2};
+            end
+        case 4
             m = varargin{1};
             k = varargin{2};
-            m = m(x);
+            M = varargin{3};
         otherwise
             % nop
+    end
+    
+    if isa(m, 'function_handle')
+        m = m(x);
     end
     
     %% Generate the data
     Kxx = mgp.calculate_covariance(x, k);
     Lxx = chol(Kxx).';
-    f = m + (Lxx*randn(N, 1)).';
+    f = ones(M, 1)*m + (Lxx*randn(N, M)).';
 end
